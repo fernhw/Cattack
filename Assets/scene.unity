@@ -160,7 +160,7 @@ Light:
     m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.11
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -336,6 +336,7 @@ GameObject:
   - component: {fileID: 787338139}
   - component: {fileID: 787338138}
   - component: {fileID: 787338143}
+  - component: {fileID: 787338144}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -435,6 +436,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &787338144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 787338137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: 7f335890ef8128442af78aecdde2caf0, type: 2}
 --- !u!1001 &917660795
 Prefab:
   m_ObjectHideFlags: 0
@@ -1218,7 +1231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acfcb5d9c14b4ee0a83e0021aadcbe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableJobSystem: 0
+  enableJobSystem: 1
   Innerjobs: 0
   prefabCat: {fileID: 1948922466999060, guid: 953cbabecebee4832b389f2fcabc2372, type: 2}
 --- !u!4 &1837039276
