@@ -5,14 +5,17 @@ using UnityEngine;
 public class Catager : MonoBehaviour {
     public GameObject prefabCat;
     public static CatController[] cats;
+    public static List<CatDumieData> catDummies;
     public static int catAmmount;
 
     // Use this for initialization
     void Start() {
         cats = (CatController[])FindObjectsOfType(typeof(CatController));
         catAmmount = cats.Length;
+        catDummies = new List<CatDumieData>();
         for (int i = 0; i < catAmmount; i++) {
             cats[i].Init(i);
+            CatDumieData dumieData = new CatDumieData();
         }
     }
 
@@ -23,8 +26,11 @@ public class Catager : MonoBehaviour {
         bool allAsleep = true;
         for (int i = 0; i < catAmmount; i++) {
             cats[i].UpdateCat();
-            cats[i].UpdateCatCollision();
-            cats[i].UpdateSpacialPositions();
+            cats[i].CollisionCorrection();
+            cats[i].CollisionFall();
+            cats[i].CollisionLogic();
+            cats[i].CollisionPositionObject();
+
             if (cats[i].state == CatController.State.WALK) {
                 allAsleep = false;
             }
@@ -47,6 +53,10 @@ public class Catager : MonoBehaviour {
 
             }
             cats = (CatController[])FindObjectsOfType(typeof(CatController));
+            for (int i = 0; i < catAmmount; i++) 
+            {
+                
+            }
             catAmmount = cats.Length;
             for (int i = 0; i < catAmmount; i++) {
                 cats[i].id = i;

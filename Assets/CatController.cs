@@ -36,27 +36,31 @@ public class CatController : MonoBehaviour {
     public State state = State.WALK;
     public int id = 0;
     public void Init(int id) {
-        this.id = id;
+        
         alive = true;
+        this.id = id;
         float randomAngle = Random.value * Mathf.PI * 2;
         float randomDistance = Random.value * Mathf.PI;
-        float rd = Mathf.Sin(randomDistance) * .5f + (Catager.catAmmount / 500)+.5f;
+        float rd = Mathf.Sin(randomDistance) * .5f + (Catager.catAmmount / 500) + .5f;
+
         if (rd < .2)
             rd = .2f;
-          if (rd > 1.8f)
+        
+        if (rd > 1.8f)
             rd = 1.8f;
-            rd *= Random.value;
+        
+        rd *= Random.value;
 
-        if(Mathf.Round(Random.value*8)==0){
+        if (Mathf.Round(Random.value * 8) == 0) {
             rd *= 4;
         }
 
         GOAL_X = Mathf.Cos(randomAngle) * rd;
         GOAL_Z = Mathf.Sin(randomAngle) * rd;
 
-
         position = transform.localPosition;
-        transform.localPosition = position;
+        realPosition = transform.localPosition;
+        rotation = transform.localEulerAngles;
 
         float randomVal = Random.value;
         float range = randomVal * (DISTRACTION_END - DISTRACTION_START);
@@ -77,9 +81,6 @@ public class CatController : MonoBehaviour {
 
     public void UpdateCat() {
         delta = Time.deltaTime * speed;
-        position = transform.localPosition;
-        realPosition = transform.localPosition;
-        rotation = transform.localEulerAngles;
         timePassed += delta;
         switch (state) {
         case State.WALK:
@@ -119,146 +120,129 @@ public class CatController : MonoBehaviour {
         }
     }
     float cos, sin;
+    bool floating;
+
     public void UpdateCatCollision() {
-        if (state == State.WALK) {
-            
-            rotation.y = -(Mathf.PI*2-angleToMove + Mathf.PI*.5f) * Mathf.Rad2Deg;
-            bool floating = false;
+            CollisionCorrection();
+            CollisionFall();
+            CollisionLogic();
+            CollisionPositionObject();
+    }
 
-            for (int i = 0; i < Catager.catAmmount; i++) {
-                CatController cat = Catager.cats[i];
-                if (cat.id == this.id) {
-                } else {
-                    /* float distX = cat.position.x - position.x;
-                     float distZ = cat.position.z - position.z;
-                     float distY = cat.position.y - position.y;
-     */
-                    float distX, distY, distZ;
-                    // float distance = distX * distX + distZ * distZ;
-                    //  if (distance < .1f) {
-                    //if (cat.state == State.SLEEP) {
-                    //    state = State.SLEEP;
-                    //  }
-                    //if (
-                    if (position.x > cat.position.x + .2f ||
-                        position.x < cat.position.x - .2f) {
-                        continue;
-                    }
-                    if (position.z > cat.position.z + .2f ||
-                        position.z < cat.position.z - .2f) {
-                        continue;
-                    }
+    public void CollisionCorrection (){
+        if (state != State.WALK)
+            return;
+        rotation.y = -(Mathf.PI * 2 - angleToMove + Mathf.PI * .5f) * Mathf.Rad2Deg;
+        floating = false;
 
-                    if (position.y >= cat.position.y &&
-                        position.y < cat.position.y + .1f &&
-                        position.y + .1f > cat.position.y) {
-                        distX = cat.position.x - position.x;
-                        distZ = cat.position.z - position.z;
-                        distY = (cat.position.y + .05f) - (position.y + .05f);
-                        float distance2 = distX * distX + distZ * distZ + distY * distY;
-                        /*if (distance2 < .2f) {
-                            position.x += (cat.position.x - position.x) * .01f;
-                             position.z += (cat.position.z - position.z) * .01f;
-                             cat.position.x += (position.x - cat.position.x) * .01f;
-                             cat.position.z += (position.z - cat.position.z) * .01f;
-                        }*/
-                        for (int a = 0; a < 4; a++) {
-                            if (distance2 < .04f) {
-                                floating = true;
-                                distX = cat.position.x - position.x;
-                                distZ = cat.position.z - position.z;
-                                distY = (cat.position.y + .05f) - (position.y + .05f);
-                                distance2 = distX * distX + distZ * distZ + distY * distY;
-                                position.y += .2f * delta;
+        for (int i = 0; i < Catager.catAmmount; i++) {
+            CatController cat = Catager.cats[i];
+            if (cat.id == this.id) {
+            } else {
+                float distX, distY, distZ;
 
-                            } else {
-                                break;
-                            }
+                if (position.x > cat.position.x + .2f ||
+                    position.x < cat.position.x - .2f ||
+                    position.z > cat.position.z + .2f ||
+                    position.z < cat.position.z - .2f) {
+                    continue;
+                }
+
+                if (position.y >= cat.position.y &&
+                    position.y < cat.position.y + .1f &&
+                    position.y + .1f > cat.position.y) {
+                    distX = cat.position.x - position.x;
+                    distZ = cat.position.z - position.z;
+                    distY = (cat.position.y + .05f) - (position.y + .05f);
+                    float distance2 = distX * distX + distZ * distZ + distY * distY;
+                    for (int a = 0; a < 4; a++) {
+                        if (distance2 < .04f) {
+                            floating = true;
+                            distX = cat.position.x - position.x;
+                            distZ = cat.position.z - position.z;
+                            distY = (cat.position.y + .05f) - (position.y + .05f);
+                            distance2 = distX * distX + distZ * distZ + distY * distY;
+                            position.y += .2f * delta;
+
+                        } else {
+                            break;
                         }
-                        gravity = 0;
-                        // } else {
-                        // break;
                     }
+                    gravity = 0;
                 }
-
-
-                //  }
             }
+        }
+    }
 
+    public void CollisionFall (){
+        if (state != State.WALK)
+            return;
             if (!floating) {
-                position.y -= gravity * delta * 1f;
-
-                if (gravity != TERMINAL_VELOCITY) {
-                    gravity += delta * 5;
-                    //timeUntilNextCatDistraction += delta;
-                    if (gravity > TERMINAL_VELOCITY) {
-                        gravity = TERMINAL_VELOCITY;
-                    }
+            position.y -= gravity * delta * 1f;
+            if (gravity != TERMINAL_VELOCITY) {
+                gravity += delta * 5;
+                if (gravity > TERMINAL_VELOCITY) {
+                    gravity = TERMINAL_VELOCITY;
                 }
-
             }
+        }
 
-            if (position.y < 0) {
-                position.y = 0;
-                gravity = 0;
-            }
+        if (position.y < 0) {
+            position.y = 0;
+            gravity = 0;
+        }
+    }
 
+    public void CollisionLogic(){
+        if (state != State.WALK)
+            return;
             if (position.x > GOAL_X - GOAL_SQUARE_RANGE &&
                position.x < GOAL_X + GOAL_SQUARE_RANGE &&
                position.z > GOAL_Z - GOAL_SQUARE_RANGE &&
                position.z < GOAL_Z + GOAL_SQUARE_RANGE) {
-                timePassed = 0;
-                state = State.SLEEP;
-                position.y = 0;
-                for (int i = 0; i < Catager.catAmmount; i++) {
-                    CatController cat = Catager.cats[i];
-                    if(cat.state != State.SLEEP){
-                        continue;
-                    }
-                    if (cat.id == id) {
-                    } else {
-                        
-                        float distX = cat.realPosition.x - position.x;
-                        float distZ = cat.realPosition.z - position.z;
-                        float distance = Mathf.Sqrt(distX * distX + distZ * distZ);
-                        if (distance < .2f) {
-                            if (position.y >= cat.position.y) {
-                                while (position.y < Catager.cats[i].position.y + .11f &&
-                                      position.y + .11f > Catager.cats[i].position.y) {
-                                    position.y += .01f;
-                                }
+            position.y = 0;
+            state = State.SLEEP;
+            timePassed = 0;
+            for (int i = 0; i < Catager.catAmmount; i++) {
+                CatController cat = Catager.cats[i];
+                if (cat.state != State.SLEEP) {
+                    continue;
+                }
+                if (cat.id == id) {
+                } else {
+                    float distX = cat.realPosition.x - position.x;
+                    float distZ = cat.realPosition.z - position.z;
+                    float distance = Mathf.Sqrt(distX * distX + distZ * distZ);
+                    if (distance < .2f) {
+                        if (position.y >= cat.position.y) {
+                            while (position.y < Catager.cats[i].position.y + .11f &&
+                                  position.y + .11f > Catager.cats[i].position.y) {
+                                position.y += .01f;
                             }
-
                         }
                     }
                 }
             }
-
         }
     }
 
-    public void UpdateSpacialPositions() {
+    public void CollisionPositionObject(){
         transform.localPosition = position;
         transform.localEulerAngles = rotation;
     }
+
 
     void SortieAngle() {
         float randomVal = Random.value;
         float range = randomVal * (DISTRACTION_END - DISTRACTION_START);
         timeUntilNextCatDistraction = DISTRACTION_START + range;
-
-       
-
-
         float xDif = position.x - GOAL_X;
         float yDif = position.z - GOAL_Z;
         float angle = Mathf.Atan2(xDif, yDif);
         float rng = Random.value * ANGLE_DISTRACTION;
-        float correction = -Mathf.PI * .5f;
-        angleToMove = angle ;
-        cos = Mathf.Cos(angleToMove-Mathf.PI);
-        sin = Mathf.Sin(angleToMove- Mathf.PI);
-       
+        angleToMove = angle;
+        cos = Mathf.Cos(angleToMove - Mathf.PI);
+        sin = Mathf.Sin(angleToMove - Mathf.PI);
     }
 
     public enum State {
